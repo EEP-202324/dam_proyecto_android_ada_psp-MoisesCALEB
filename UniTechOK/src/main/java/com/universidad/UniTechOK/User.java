@@ -21,9 +21,12 @@ public class User {
     private String username;
     private String password;
     
-    @ManyToOne(optional = true)
+    
+    
+    @ManyToOne
     @JoinColumn(name = "universidad_id") // Esto asume que en la tabla User habrá una columna llamada "universidad_id" que referenciará la universidad a la que pertenece el usuario
     private Universidad universidad;
+    
 
     
     public User() {
@@ -61,6 +64,13 @@ public class User {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+    public Universidad getUniversidad() {
+        return universidad;
+    }
+
+    public void setUniversidad(Universidad universidad) {
+        this.universidad = universidad;
     }
 
     @Override

@@ -23,6 +23,16 @@ public class UniversityController {
     public Universidad createUniversity(@RequestBody Universidad university) {
         return universityService.createUniversity(university);
     }
+    
+    @DeleteMapping("/{id}")
+    public String deleteUniversity(@PathVariable Long id) {
+        boolean deleted = universityService.deleteUniversity(id);
+        if (deleted) {
+            return "University with id " + id + " deleted successfully.";
+        } else {
+            return "University with id " + id + " not found or unable to delete.";
+        }
+    }
 
     // Otros métodos del controlador...
 }

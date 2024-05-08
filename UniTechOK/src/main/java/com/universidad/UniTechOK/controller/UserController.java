@@ -4,6 +4,7 @@ package com.universidad.UniTechOK.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.universidad.UniTechOK.User;
@@ -32,6 +33,13 @@ public class UserController {
     public User createUser(@RequestBody User user) {
         return userService.createUser(user);
     }
+    
+    @PostMapping("/{userId}/associateUniversity/{universityId}")
+    public ResponseEntity<?> associateUserWithUniversity(@PathVariable Long userId, @PathVariable Long universityId) {
+        userService.associateUserWithUniversity(userId, universityId);
+        return ResponseEntity.ok().build();
+    }
+
     
     @PutMapping("/{id}")
     public User updateUser(@PathVariable Long id, @RequestBody User user) {
