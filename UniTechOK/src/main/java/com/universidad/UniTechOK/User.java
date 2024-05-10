@@ -3,6 +3,8 @@ package com.universidad.UniTechOK;
 
 
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -13,6 +15,7 @@ import jakarta.persistence.ManyToOne;
 
 
 @Entity
+@JsonIgnoreProperties({"universidad"})
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

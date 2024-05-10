@@ -11,7 +11,7 @@ import com.universidad.UniTechOK.User;
 import com.universidad.UniTechOK.service.UserService;
 
 
-
+@CrossOrigin
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
@@ -29,7 +29,7 @@ public class UserController {
         return userService.getUserById(id);
     }
 
-    @PostMapping
+    @PostMapping(consumes = {"application/json"})
     public User createUser(@RequestBody User user) {
         return userService.createUser(user);
     }
