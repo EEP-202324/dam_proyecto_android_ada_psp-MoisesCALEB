@@ -58,6 +58,10 @@ public class UserService {
     public void deleteUser(Long id) {
         userRepository.deleteById(id);
     }
-
+    
+    public User getUserByUsername(String username) {
+        Optional<User> userOptional = userRepository.findByUsername(username);
+        return userOptional.orElse(null); // Devuelve el usuario si está presente, de lo contrario, devuelve null
+    }
     // Otros métodos del servicio...
 }

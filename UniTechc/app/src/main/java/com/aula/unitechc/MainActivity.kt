@@ -8,7 +8,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Button
 
 import androidx.compose.material3.Surface
@@ -22,6 +21,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.aula.unitechc.api.ApiService
 import retrofit2.Call
 import retrofit2.Callback
@@ -29,8 +32,13 @@ import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import com.aula.unitechc.model.User
+import androidx.compose.runtime.Composable
+import androidx.navigation.NavController
+import androidx.navigation.NavHostController
+
 
 private const val BASE_URL = "http://10.0.2.2:8080/"
+
 
 class MainActivity : AppCompatActivity() {
     private val apiService: ApiService by lazy {
@@ -43,15 +51,32 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            Surface(color = MaterialTheme.colors.background) {
-                LoginScreen(apiService = apiService)
-            }
+                val navController = rememberNavController()
+                AppNavigation(navController = navController)
+
         }
     }
 }
-
+sealed class Screen(val route: String) {
+    object Login : Screen("login_screen")
+    object Second : Screen("second_screen")
+}
 @Composable
-fun LoginScreen(apiService: ApiService) {
+fun AppNavigation(navController: NavHostController) {
+    // Configurar la navegación en la aplicación
+    NavHost(navController = navController, startDestination = Screen.Login.route) {
+        composable(Screen.Login.route) {
+            // Pantalla de inicio de sesión
+            LoginScreen(navController = navController)
+        }
+        composable(Screen.Second.route) {
+            // Segunda pantalla
+            SecondScreen(navController = navController)
+        }
+    }
+}
+@Composable
+fun LoginScreen(navController: NavController) {
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
@@ -95,29 +120,41 @@ fun LoginScreen(apiService: ApiService) {
                 label = { Text("Email") }
             )
         }
-
+        val context= LocalContext.current
         Row(
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             // Botón de inicio de sesión
             Button(onClick = {
-                // Aquí podrías llamar al método de tu ApiService para obtener los usuarios
-                getUsersFromServer(apiService) { userList ->
-                    users = userList
+                if (username.isNotEmpty() && password.isNotEmpty()) {
+                    // Llamar a la función performingLogin con los datos ingresados por el usuario
+                    performLogin(username, password, context, navController) { success ->
+                        if (success) {
+                            // Si el inicio de sesión es exitoso, puedes realizar alguna acción adicional aquí
+                            // Por ejemplo, navegar a la segunda pantalla
+                            navController.navigate(Screen.Second.route)
+                        } else {
+                            // Si hay un error en el inicio de sesión, puedes manejarlo aquí
+                            showToast(context, "Error en el inicio de sesión")
+                        }
+                    }
+                } else {
+                    // Mostrar un mensaje de error si algún campo está vacío
+                    showToast(context, "Por favor, ingresa tu usuario y contraseña")
                 }
             }) {
                 Text("Login")
             }
 
-            val context= LocalContext.current
+
             // Botón de registro
             Button(onClick = {
 
                 // Cambiar al modo de registro o realizar el registro según el estado actual
                 if (isRegistering) {
-                    performRegistration(username, email, password, context) { success ->
+                    performRegistration(username, email, password, context, navController) { success ->
                         if (success) {
-                            // Registro exitoso, realizar alguna acción adicional si es necesario
+                            navController.navigate(Screen.Second.route)
                         } else {
                             // Error en el registro, manejar según corresponda
                         }
@@ -138,24 +175,8 @@ fun LoginScreen(apiService: ApiService) {
     }
 }
 
-private fun getUsersFromServer(apiService: ApiService, callback: (List<User>) -> Unit) {
-    // Llamar al método correspondiente en tu ApiService para obtener los usuarios
-    apiService.getUsers().enqueue(object : Callback<List<User>> {
-        override fun onResponse(call: Call<List<User>>, response: Response<List<User>>) {
-            if (response.isSuccessful) {
-                val userList = response.body() ?: emptyList()
-                callback(userList)
-            } else {
-                // Manejar el caso en que la solicitud no sea exitosa
-            }
-        }
-        override fun onFailure(call: Call<List<User>>, t: Throwable) {
-            // Manejar el caso en que haya un fallo de red
-            t.printStackTrace()
-        }
-    })
-}
-fun performRegistration(username: String, email: String, password: String, context: Context, callback: (Boolean) -> Unit) {
+
+fun performRegistration(username: String, email: String, password: String, context: Context, navController: NavController, callback: (Boolean) -> Unit) {
     val retrofit = Retrofit.Builder()
         .baseUrl(BASE_URL)
         .addConverterFactory(GsonConverterFactory.create())
@@ -168,6 +189,8 @@ fun performRegistration(username: String, email: String, password: String, conte
     apiService.registerUser(user).enqueue(object : Callback<Void> {
         override fun onResponse(call: Call<Void>, response: Response<Void>) {
             if (response.isSuccessful) {
+
+
                 // Registro exitoso
                 showToast(context, "Registro exitoso")
                 callback(true)
@@ -191,8 +214,43 @@ fun performRegistration(username: String, email: String, password: String, conte
 private fun showToast(context: Context, message: String) {
     Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
 }
+fun performLogin(username: String, password: String, context: Context, navController: NavController, callback: (Boolean) -> Unit) {
+    val retrofit = Retrofit.Builder()
+        .baseUrl(BASE_URL)
+        .addConverterFactory(GsonConverterFactory.create())
+        .build()
 
+    val apiService = retrofit.create(ApiService::class.java)
 
+    // Realizar una llamada al método del API para obtener el usuario por nombre de usuario
+    apiService.getUserByUsername(username).enqueue(object : Callback<User> {
+        override fun onResponse(call: Call<User>, response: Response<User>) {
+            if (response.isSuccessful) {
+                val user = response.body()
+                // Verificar si se encontró un usuario y si la contraseña coincide
+                if (user != null && user.password == password) {
+                    navController.navigate(Screen.Second.route)
+                    callback(true)
+                } else {
+                    // Usuario no encontrado o contraseña incorrecta
+                    showToast(context, "Credenciales inválidas")
+                    callback(false)
+                }
+            } else {
+                // Error en la solicitud
+                showToast(context, "Error en la solicitud")
+                callback(false)
+            }
+        }
+
+        override fun onFailure(call: Call<User>, t: Throwable) {
+            // Error de red al realizar la solicitud
+            showToast(context, "Error de red al iniciar sesión")
+            t.printStackTrace()
+            callback(false)
+        }
+    })
+}
 
 
 @Preview(showBackground = true)
