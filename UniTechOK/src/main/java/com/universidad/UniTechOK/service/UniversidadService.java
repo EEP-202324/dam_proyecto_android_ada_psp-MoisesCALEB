@@ -18,6 +18,14 @@ public class UniversidadService {
     public List<Universidad> getAllUniversities() {
         return (List<Universidad>) universidadRepository.findAll();
     }
+    
+    public Universidad getUniversityById(Long id) {
+        // Utiliza el método findById del repositorio para obtener la universidad por su ID
+        Optional<Universidad> universityOptional = universidadRepository.findById(id);
+        
+        // Verifica si se encontró la universidad y devuelve el objeto Universidad si está presente
+        return universityOptional.orElse(null);
+    }
 
     public Universidad createUniversity(Universidad universidad) {
         // Aquí podrías agregar lógica para validar o procesar la universidad antes de guardarla en la base de datos
@@ -38,6 +46,21 @@ public class UniversidadService {
         }
         return false;
     }
+    public Universidad updateUniversity(Long id, Universidad updatedUniversity) {
+        // Verificar si la universidad con el ID dado existe en la base de datos
+        Universidad existingUniversity = universidadRepository.findById(id)
+            .orElseThrow();
+
+        // Actualizar los campos de la universidad existente con los datos proporcionados
+        existingUniversity.setNombre(updatedUniversity.getNombre());
+        existingUniversity.setDireccion(updatedUniversity.getDireccion());
+        existingUniversity.setEnlace(updatedUniversity.getEnlace());
+
+        // Guardar la universidad actualizada en la base de datos
+        return universidadRepository.save(existingUniversity);
+    }
+
+
 
     // Otros métodos del servicio...
 }

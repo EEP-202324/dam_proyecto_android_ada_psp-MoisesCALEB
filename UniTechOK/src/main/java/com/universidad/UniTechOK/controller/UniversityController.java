@@ -18,6 +18,15 @@ public class UniversityController {
     public List<Universidad> getAllUniversities() {
         return universityService.getAllUniversities();
     }
+    @GetMapping("/{id}")
+    public Universidad getUniversityById(@PathVariable Long id) throws Exception {
+        Universidad university = universityService.getUniversityById(id);
+        if (university != null) {
+            return university;
+        } else {
+            throw new Exception("University not found with id: " + id);
+        }
+    }
 
     @PostMapping
     public Universidad createUniversity(@RequestBody Universidad university) {
@@ -32,6 +41,11 @@ public class UniversityController {
         } else {
             return "University with id " + id + " not found or unable to delete.";
         }
+    }
+    
+    @PutMapping("/{id}")
+    public Universidad updateUniversity(@PathVariable Long id, @RequestBody Universidad updatedUniversity) {
+        return universityService.updateUniversity(id, updatedUniversity);
     }
 
     // Otros métodos del controlador...

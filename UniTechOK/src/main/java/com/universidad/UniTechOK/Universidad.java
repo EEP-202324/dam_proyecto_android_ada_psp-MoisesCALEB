@@ -2,6 +2,8 @@ package com.universidad.UniTechOK;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -9,14 +11,24 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 
 @Entity
+@JsonIgnoreProperties({"usuarios"})
 public class Universidad {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String nombre;
     private String direccion;
+    private String enlace;
 
-    @OneToMany(mappedBy = "universidad")
+    public String getEnlace() {
+		return enlace;
+	}
+
+	public void setEnlace(String enlace) {
+		this.enlace = enlace;
+	}
+
+	@OneToMany(mappedBy = "universidad")
     private List<User> usuarios;
 
     // Constructor vacío

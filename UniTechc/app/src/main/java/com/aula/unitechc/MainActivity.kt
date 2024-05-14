@@ -1,5 +1,7 @@
+
 package com.aula.unitechc
 
+import SecondScreen
 import android.content.Context
 import android.os.Bundle
 import android.widget.Toast
@@ -9,11 +11,9 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Button
+import androidx.compose.material.Text
 
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
-
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -21,7 +21,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -35,6 +34,11 @@ import com.aula.unitechc.model.User
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
+import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
+
+import com.aula.unitechc.model.Universidad
 
 
 private const val BASE_URL = "http://10.0.2.2:8080/"
@@ -60,7 +64,10 @@ class MainActivity : AppCompatActivity() {
 sealed class Screen(val route: String) {
     object Login : Screen("login_screen")
     object Second : Screen("second_screen")
+
+    object UniversityForm : Screen("university_form_screen")
 }
+
 @Composable
 fun AppNavigation(navController: NavHostController) {
     // Configurar la navegación en la aplicación
@@ -72,6 +79,23 @@ fun AppNavigation(navController: NavHostController) {
         composable(Screen.Second.route) {
             // Segunda pantalla
             SecondScreen(navController = navController)
+        }
+        composable(
+            route = Screen.UniversityForm.route + "?id={id}&nombre={nombre}&direccion={direccion}&enlace={enlace}",
+            arguments = listOf(
+                navArgument("id") { type = NavType.LongType; defaultValue = -1L },
+                navArgument("nombre") { type = NavType.StringType; defaultValue = "" },
+                navArgument("direccion") { type = NavType.StringType; defaultValue = "" },
+                navArgument("enlace") { type = NavType.StringType; defaultValue = "" }
+            )
+        ) { backStackEntry ->
+            val id = backStackEntry.arguments?.getLong("id")
+            val nombre = backStackEntry.arguments?.getString("nombre")
+            val direccion = backStackEntry.arguments?.getString("direccion")
+            val enlace = backStackEntry.arguments?.getString("enlace")
+            val university = if (id != null && id != -1L) Universidad(id, nombre ?: "", direccion ?: "", enlace ?: "") else null
+            val isEditMode = id != null && id != -1L
+            UniversityFormScreen(navController, university, isEditMode)
         }
     }
 }
@@ -211,7 +235,7 @@ fun performRegistration(username: String, email: String, password: String, conte
 }
 
 
-private fun showToast(context: Context, message: String) {
+fun showToast(context: Context, message: String) {
     Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
 }
 fun performLogin(username: String, password: String, context: Context, navController: NavController, callback: (Boolean) -> Unit) {
