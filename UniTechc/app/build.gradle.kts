@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsKotlinAndroid)
+
 }
 
 android {
@@ -50,6 +51,7 @@ android {
 }
 
 dependencies {
+    implementation ("androidx.compose.material:material-icons-extended:1.4.1")
     implementation ("androidx.navigation:navigation-compose:2.4.0-alpha10")
     implementation("com.squareup.retrofit2:retrofit:2.7.2")
     implementation("com.squareup.retrofit2:converter-gson:2.7.2") // Para convertir JSON a objetos Java (Gson es solo un ejemplo, puedes elegir otro convertidor si lo prefieres)

@@ -1,6 +1,9 @@
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -39,6 +42,12 @@ import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material3.ButtonDefaults
+
+import androidx.compose.material3.Icon
 
 private const val BASE_URL = "http://10.0.2.2:8080/"
 suspend fun getUniversities(
@@ -121,6 +130,7 @@ fun UniversityList(
     }
 }
 
+
 @Composable
 fun SecondScreen(navController: NavController) {
     var universities by remember { mutableStateOf<List<Universidad>>(emptyList()) }
@@ -128,6 +138,7 @@ fun SecondScreen(navController: NavController) {
     val pageSize = 6
     var isLoading by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
+
 
     LaunchedEffect(key1 = true) {
         getUniversities(navController = navController, page = currentPage, pageSize = pageSize, sort = "") { receivedUniversities, success ->
@@ -156,7 +167,8 @@ fun SecondScreen(navController: NavController) {
         )
         LazyColumn(
             modifier = Modifier.weight(1f),
-            contentPadding = PaddingValues(horizontal = 16.dp)
+            contentPadding = PaddingValues(horizontal = 16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             items(universities) { university ->
                 println("Rendering university card: ${university.nombre}")
@@ -190,7 +202,11 @@ fun SecondScreen(navController: NavController) {
 
             // Elemento para el botón de cargar más universidades
             item {
+                val DarkBlue = Color(0xFF0D47A1)
                 Button(
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = DarkBlue
+                    ),
                     onClick = {
                         if (!isLoading) {
                             isLoading = true
@@ -215,18 +231,15 @@ fun SecondScreen(navController: NavController) {
                         }
                     },
                     modifier = Modifier
-                        .padding(vertical = 16.dp)
-                        .fillMaxWidth()
+                        .padding(top = 16.dp)
+                        .align(Alignment.CenterHorizontally)
+
                 ) {
                     Text(if (isLoading) "Cargando..." else "Más...")
                 }
             }
         }
         // Botón para cargar más universidades
-
-
-
-
 
     // Botón redondeado en la esquina inferior derecha
         FloatingActionButton(
@@ -250,6 +263,11 @@ fun UniversityCard(
     onAssociationToggle: (Boolean) -> Unit,
 ) {
     var isSelected by remember { mutableStateOf(false) }
+    val editButtonInteractionSource = remember { MutableInteractionSource() }
+    val deleteButtonInteractionSource = remember { MutableInteractionSource() }
+
+    val isEditPressed by editButtonInteractionSource.collectIsPressedAsState()
+    val isDeletePressed by deleteButtonInteractionSource.collectIsPressedAsState()
 
     Card(
         modifier = Modifier
@@ -261,7 +279,7 @@ fun UniversityCard(
         Column(modifier = Modifier.padding(16.dp)) {
             Text(text = university.nombre, style = TextStyle(fontSize = 20.sp))
             Text(text = university.direccion, style = TextStyle(fontSize = 16.sp))
-
+            val context = LocalContext.current
             ClickableText(
                 text = buildAnnotatedString {
                     append("Sitio web")
@@ -269,7 +287,7 @@ fun UniversityCard(
                 },
                 onClick = { offset ->
                     val url = university.enlace
-                    // Implementa la lógica para redirigir a la página web utilizando el NavController
+                    openWebPage(context, url)
                 }
             )
 
@@ -279,11 +297,33 @@ fun UniversityCard(
                     .padding(top = 16.dp),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Button(onClick = { onEditClick(university) }) {
-                    Text("Modificar")
+                Button(
+                    onClick = { onEditClick(university) },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = if (isEditPressed) Color.Blue else Color.White
+                    ),
+                    interactionSource = editButtonInteractionSource
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Edit,
+                        contentDescription = "Editar",
+                        tint = Color.Black  // Cambiar el color del icono
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
                 }
-                Button(onClick = onDeleteClick) {
-                    Text("Borrar")
+                Button(
+                    onClick = onDeleteClick,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = if (isDeletePressed) Color.Red else Color.White
+                    ),
+                    interactionSource = deleteButtonInteractionSource
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Delete,
+                        contentDescription = "Borrar",
+                        tint = Color.Black // Cambiar el color del icono
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
                 }
             }
 
@@ -297,6 +337,12 @@ fun UniversityCard(
             }
         }
     }
+}
+
+fun openWebPage(context: Context, url: String) {
+    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+    context.startActivity(intent)
 }
 
 
