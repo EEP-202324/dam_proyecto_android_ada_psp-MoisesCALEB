@@ -1,6 +1,9 @@
 package com.universidad.UniTechOK.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.universidad.UniTechOK.Universidad;
@@ -11,41 +14,54 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/universidades")
 public class UniversityController {
+
     @Autowired
     private UniversidadService universityService;
 
     @GetMapping
-    public List<Universidad> getAllUniversities() {
-        return universityService.getAllUniversities();
+    public ResponseEntity<Page<Universidad>> getAllUniversities(Pageable pageable) {
+        Page<Universidad> universities = universityService.getAllUniversities(pageable);
+        return ResponseEntity.ok(universities);
     }
+
     @GetMapping("/{id}")
-    public Universidad getUniversityById(@PathVariable Long id) throws Exception {
-        Universidad university = universityService.getUniversityById(id);
-        if (university != null) {
-            return university;
-        } else {
-            throw new Exception("University not found with id: " + id);
+    public ResponseEntity<Universidad> getUniversityById(@PathVariable Long id) {
+        try {
+            Universidad university = universityService.getUniversityById(id);
+            if (university != null) {
+                return ResponseEntity.ok(university);
+            } else {
+                return ResponseEntity.notFound().build();
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(null);
         }
     }
 
     @PostMapping
-    public Universidad createUniversity(@RequestBody Universidad university) {
-        return universityService.createUniversity(university);
+    public ResponseEntity<Universidad> createUniversity(@RequestBody Universidad university) {
+        Universidad createdUniversity = universityService.createUniversity(university);
+        return ResponseEntity.status(201).body(createdUniversity); // 201 Created
     }
-    
+
     @DeleteMapping("/{id}")
-    public String deleteUniversity(@PathVariable Long id) {
+    public ResponseEntity<String> deleteUniversity(@PathVariable Long id) {
         boolean deleted = universityService.deleteUniversity(id);
         if (deleted) {
-            return "University with id " + id + " deleted successfully.";
+            return ResponseEntity.ok("University with id " + id + " deleted successfully.");
         } else {
-            return "University with id " + id + " not found or unable to delete.";
+            return ResponseEntity.status(404).body("University with id " + id + " not found or unable to delete.");
         }
     }
-    
+
     @PutMapping("/{id}")
-    public Universidad updateUniversity(@PathVariable Long id, @RequestBody Universidad updatedUniversity) {
-        return universityService.updateUniversity(id, updatedUniversity);
+    public ResponseEntity<Universidad> updateUniversity(@PathVariable Long id, @RequestBody Universidad updatedUniversity) {
+        Universidad updated = universityService.updateUniversity(id, updatedUniversity);
+        if (updated != null) {
+            return ResponseEntity.ok(updated);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     // Otros métodos del controlador...

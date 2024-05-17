@@ -11,7 +11,9 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Button
+import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
+import androidx.compose.material.TextFieldDefaults
 
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.*
@@ -32,6 +34,8 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import com.aula.unitechc.model.User
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -99,6 +103,7 @@ fun AppNavigation(navController: NavHostController) {
         }
     }
 }
+
 @Composable
 fun LoginScreen(navController: NavController) {
     var username by remember { mutableStateOf("") }
@@ -106,6 +111,7 @@ fun LoginScreen(navController: NavController) {
     var email by remember { mutableStateOf("") }
     var isRegistering by remember { mutableStateOf(false) }
     var users by remember { mutableStateOf<List<User>>(emptyList()) } // Lista de usuarios
+    var loginError by remember { mutableStateOf<String?>(null) }
 
     Column(
         modifier = Modifier
@@ -114,15 +120,19 @@ fun LoginScreen(navController: NavController) {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        TextField(
+        OutlinedTextField(
             value = username,
             onValueChange = { username = it },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 8.dp),
-            label = { Text("Username") }
+            label = { Text("Username") },
+            colors = TextFieldDefaults.outlinedTextFieldColors(
+                focusedBorderColor = Color.Blue,
+                unfocusedBorderColor = Color.Gray
+            )
         )
-        TextField(
+        OutlinedTextField(
             value = password,
             onValueChange = { password = it },
             modifier = Modifier
@@ -130,18 +140,35 @@ fun LoginScreen(navController: NavController) {
                 .padding(bottom = 8.dp),
             label = { Text("Password") },
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-            keyboardActions = KeyboardActions(onDone = { /* Handle login here */ })
+            keyboardActions = KeyboardActions(onDone = { /* Handle login here */ }),
+            colors = TextFieldDefaults.outlinedTextFieldColors(
+                focusedBorderColor = Color.Blue,
+                unfocusedBorderColor = Color.Gray
+            )
         )
+
 
         // Campo de correo electrónico solo visible en modo de registro
         if (isRegistering) {
-            TextField(
+            OutlinedTextField(
                 value = email,
                 onValueChange = { email = it },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = 8.dp),
-                label = { Text("Email") }
+                label = { Text("Email") },
+                colors = TextFieldDefaults.outlinedTextFieldColors(
+                    focusedBorderColor = Color.Blue,
+                    unfocusedBorderColor = Color.Gray
+                )
+            )
+        }
+        loginError?.let { error ->
+            Text(
+                text = error,
+                color = Color.Red,
+                fontSize = 14.sp,
+                modifier = Modifier.padding(bottom = 8.dp)
             )
         }
         val context= LocalContext.current
@@ -160,6 +187,7 @@ fun LoginScreen(navController: NavController) {
                         } else {
                             // Si hay un error en el inicio de sesión, puedes manejarlo aquí
                             showToast(context, "Error en el inicio de sesión")
+                            loginError = "Las credenciales no coinciden"
                         }
                     }
                 } else {

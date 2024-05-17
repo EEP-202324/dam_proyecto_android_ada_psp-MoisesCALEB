@@ -1,5 +1,6 @@
 package com.aula.unitechc.api
 
+import com.aula.unitechc.model.ApiResponse
 import com.aula.unitechc.model.Universidad
 import com.aula.unitechc.model.User
 import retrofit2.Call
@@ -25,7 +26,12 @@ interface ApiService {
     fun getUniversityById(@Path("id") id: Long): Call<Universidad>
 
     @GET("api/universidades")
-    fun getUniversidades(): Call<List<Universidad>> // Aquí Universidad es tu clase de modelo para las universidades
+    fun getUniversidades(
+        @Query("page") page: Int,
+        @Query("size") size: Int,
+        @Query("sort") sort: String
+    ): Call<ApiResponse>
+// Aquí Universidad es tu clase de modelo para las universidades
 
 
     @GET("/api/users/username/{username}")

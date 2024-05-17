@@ -1,6 +1,8 @@
 package com.universidad.UniTechOK.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.universidad.UniTechOK.Universidad;
@@ -15,8 +17,8 @@ public class UniversidadService {
     @Autowired
     private UniversidadRepository universidadRepository;
 
-    public List<Universidad> getAllUniversities() {
-        return (List<Universidad>) universidadRepository.findAll();
+    public Page<Universidad> getAllUniversities(Pageable pageable) {
+        return universidadRepository.findAll(pageable);
     }
     
     public Universidad getUniversityById(Long id) {
