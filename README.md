@@ -35,6 +35,10 @@ Puntos Cubiertos de la Rúbrica
     Modificación: Implementada la funcionalidad para modificar la información de las universidades.
     Búsqueda: Implementada la funcionalidad para buscar universidades.
     Base de Datos SQL: Configurada y utilizada una base de datos SQL para el backend.
-    
+
+Link Video
+
+https://eepmad-my.sharepoint.com/:v:/g/personal/mcaleb-velasquez1_eep-igroup_com/EZ6Dhq1D_wZIhthxinAHrSkB4lgIdCM3i88LLH-8Kdn8vQ?e=MH77OK&nav=eyJyZWZlcnJhbEluZm8iOnsicmVmZXJyYWxBcHAiOiJTdHJlYW1XZWJBcHAiLCJyZWZlcnJhbFZpZXciOiJTaGFyZURpYWxvZy1MaW5rIiwicmVmZXJyYWxBcHBQbGF0Zm9ybSI6IldlYiIsInJlZmVycmFsTW9kZSI6InZpZXcifX0%3D
+
 Autor
     Moises Caleb Velasquez 
