@@ -28,5 +28,13 @@ Uso
         Usa el botón en la parte inferior para añadir una nueva universidad.
     La aplicación cargará las universidades de manera progresiva usando la paginación.
     
+Puntos Cubiertos de la Rúbrica
+
+    Consulta: Implementada la funcionalidad de consulta de universidades.
+    Eliminación: Implementada la funcionalidad para eliminar universidades.
+    Modificación: Implementada la funcionalidad para modificar la información de las universidades.
+    Búsqueda: Implementada la funcionalidad para buscar universidades.
+    Base de Datos SQL: Configurada y utilizada una base de datos SQL para el backend.
+    
 Autor
     Moises Caleb Velasquez 
